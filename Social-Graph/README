@@ -1,0 +1,283 @@
+# DecentralizedSocialHub Smart Contract
+
+A comprehensive decentralized social networking platform built on the Stacks blockchain that enables users to create profiles, publish content, build social connections, and engage with community-driven interactions in a trustless, censorship-resistant environment.
+
+## Features
+
+- **User Profile Management**: Create and manage comprehensive user profiles with usernames, biographies, and avatars
+- **Content Publishing**: Publish posts with media attachments and threaded replies
+- **Social Connections**: Follow/unfollow users with automatic metrics tracking
+- **Content Engagement**: Like, unlike, and repost content with engagement metrics
+- **Verification System**: Admin-managed user verification status
+- **Reputation Scoring**: Community-driven reputation system
+- **Censorship Resistance**: Decentralized storage on Stacks blockchain
+- **Real-time Metrics**: Track followers, following, posts, likes, and reposts
+
+##  Architecture
+### Core Data Structures
+
+- **User Profiles**: Comprehensive user data with social metrics
+- **Content Registry**: Posts with engagement tracking and threading
+- **Social Relationships**: Following/follower connections
+- **Engagement Tracking**: Likes and reposts with timestamps
+- **Notification System**: User mentions and activity tracking
+
+### Key Components
+
+1. **Profile Management**: User registration, profile updates, verification
+2. **Content System**: Post creation, replies, media attachments
+3. **Social Graph**: Follow relationships and social metrics
+4. **Engagement Engine**: Likes, reposts, and interaction tracking
+5. **Admin Controls**: Platform configuration and user verification
+
+##  Prerequisites
+
+- [Clarinet](https://github.com/hirosystems/clarinet) - Stacks smart contract development tool
+- [Node.js](https://nodejs.org/) (v16 or higher)
+- [Stacks Wallet](https://www.hiro.so/wallet) for testing
+
+##  Installation & Setup
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd decentralized-social-hub
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Initialize Clarinet project**
+   ```bash
+   clarinet new social-hub
+   cd social-hub
+   ```
+
+4. **Add the contract**
+   ```bash
+   # Copy the contract file to contracts/social-hub.clar
+   cp ../DecentralizedSocialHub.clar contracts/
+   ```
+
+5. **Check contract syntax**
+   ```bash
+   clarinet check
+   ```
+
+6. **Run tests**
+   ```bash
+   npm test
+   ```
+
+##  Usage
+### User Profile Management
+
+#### Create Profile
+```clarity
+(contract-call? .social-hub establish-user-profile 
+    "username" 
+    u"User biography here" 
+    "https://example.com/avatar.jpg")
+```
+
+#### Update Profile
+```clarity
+(contract-call? .social-hub modify-user-profile-information 
+    u"Updated biography" 
+    "https://example.com/new-avatar.jpg")
+```
+
+### Content Publishing
+
+#### Create Post
+```clarity
+(contract-call? .social-hub publish-content-post 
+    u"Your post content here" 
+    (list "https://example.com/image1.jpg" "https://example.com/image2.jpg") 
+    none)
+```
+
+#### Reply to Post
+```clarity
+(contract-call? .social-hub publish-content-post 
+    u"Reply content" 
+    (list) 
+    (some u1)) ;; Replying to post ID 1
+```
+
+### Social Interactions
+
+#### Follow User
+```clarity
+(contract-call? .social-hub establish-user-following "target-username")
+```
+
+#### Unfollow User
+```clarity
+(contract-call? .social-hub terminate-user-following "target-username")
+```
+
+#### Like Post
+```clarity
+(contract-call? .social-hub express-content-appreciation u1)
+```
+
+#### Repost Content
+```clarity
+(contract-call? .social-hub amplify-content-through-repost u1)
+```
+
+### Data Retrieval
+#### Get User Profile
+```clarity
+(contract-call? .social-hub retrieve-user-profile-by-username "username")
+(contract-call? .social-hub retrieve-user-profile-by-identifier u1)
+```
+
+#### Get Post
+```clarity
+(contract-call? .social-hub retrieve-published-content-by-identifier u1)
+```
+
+#### Check Relationships
+```clarity
+(contract-call? .social-hub verify-following-relationship "follower" "followed")
+(contract-call? .social-hub verify-content-appreciation-status u1 "username")
+```
+
+##  Data Models
+### User Profile
+```clarity
+{
+    display-username: (string-ascii 30),
+    profile-biography: (string-utf8 200),
+    profile-avatar-image-url: (string-ascii 200),
+    total-followers-count: uint,
+    total-following-count: uint,
+    total-published-posts-count: uint,
+    account-creation-block-height: uint,
+    verification-status: bool,
+    community-reputation-score: uint,
+    last-activity-block-height: uint
+}
+```
+
+### Content Post
+```clarity
+{
+    content-author-identifier: uint,
+    post-text-content: (string-utf8 280),
+    publication-block-height: uint,
+    total-likes-received: uint,
+    total-replies-received: uint,
+    total-reposts-received: uint,
+    parent-thread-post-identifier: (optional uint),
+    is-reply-to-another-post: bool,
+    attached-media-urls: (list 4 (string-ascii 200)),
+    content-visibility-status: bool
+}
+```
+
+##  Configuration
+### Platform Settings
+- **Maximum Post Length**: 280 characters (configurable)
+- **Maximum Username Length**: 30 characters
+- **Maximum Biography Length**: 200 characters
+- **Maximum Media Attachments**: 4 per post
+- **Network Participation Fee**: 1 STX (configurable)
+- **Default Reputation Score**: 100 points
+
+### Admin Functions
+```clarity
+;; Update platform fee
+(contract-call? .social-hub configure-network-participation-fee u2000000)
+
+;; Grant user verification
+(contract-call? .social-hub grant-user-verification-status u1)
+
+;; Update character limit
+(contract-call? .social-hub update-maximum-content-character-limit u300)
+```
+
+##  Security Features
+### Input Validation
+- Username uniqueness and length validation
+- Content length restrictions
+- URL format validation for media attachments
+- Numeric input range validation
+- Duplicate action prevention (double likes, follows)
+
+### Access Controls
+- Owner-only administrative functions
+- User authentication for profile operations
+- Post ownership verification for modifications
+
+### Error Handling
+```clarity
+ERR-UNAUTHORIZED-ACCESS (u100)
+ERR-USER-PROFILE-NOT-FOUND (u101)
+ERR-USER-PROFILE-ALREADY-EXISTS (u102)
+ERR-CONTENT-POST-NOT-FOUND (u103)
+ERR-ALREADY-FOLLOWING-USER (u104)
+ERR-NOT-FOLLOWING-USER (u105)
+ERR-CANNOT-FOLLOW-YOURSELF (u106)
+ERR-INVALID-INPUT-DATA (u107)
+ERR-CONTENT-EXCEEDS-MAX-LENGTH (u108)
+ERR-USERNAME-EXCEEDS-MAX-LENGTH (u109)
+ERR-POST-ALREADY-LIKED (u110)
+ERR-POST-NOT-PREVIOUSLY-LIKED (u111)
+ERR-POST-ALREADY-REPOSTED (u112)
+ERR-INVALID-URL-FORMAT (u113)
+ERR-INVALID-NUMERIC-INPUT (u114)
+```
+
+##  Testing
+Run the test suite:
+```bash
+npm test
+```
+
+Test individual functions:
+```bash
+clarinet console
+```
+
+Example test cases:
+```clarity
+;; Test profile creation
+(contract-call? .social-hub establish-user-profile "testuser" u"Test bio" "https://test.com/avatar.jpg")
+
+;; Test post creation
+(contract-call? .social-hub publish-content-post u"Hello, decentralized world!" (list) none)
+
+;; Test following
+(contract-call? .social-hub establish-user-following "testuser")
+```
+
+##  Platform Statistics
+Get platform-wide metrics:
+```clarity
+(contract-call? .social-hub retrieve-platform-statistics)
+```
+
+Returns:
+```clarity
+{
+    total-registered-users: uint,
+    total-published-content: uint,
+    network-participation-fee: uint,
+    maximum-content-length: uint,
+    platform-verification-threshold: uint
+}
+```
+
+##  Deployment
+### Testnet Deployment
+```bash
+clarinet integrate
+```
+### Mainnet Deployment
+1. Configure mainnet settings in `Clarinet.toml`
+2. Deploy using Clarinet or Stacks CLI
+3. Update frontend configuration with contract address
